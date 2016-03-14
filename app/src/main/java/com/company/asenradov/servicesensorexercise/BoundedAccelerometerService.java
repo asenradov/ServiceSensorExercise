@@ -13,10 +13,11 @@ import android.util.Log;
 public class BoundedAccelerometerService extends Service implements SensorEventListener {
 
     private final int DELAY = 100;
+    private final int SIZE = 100;
     private SensorManager sensorManager_;
     private Sensor accelerometer_;
     private int counter = 0;
-    private double[] myArray = new double[100];
+    private double[] myArray = new double[SIZE];
     private double data = 0;
 
     public BoundedAccelerometerService() {
@@ -58,15 +59,15 @@ public class BoundedAccelerometerService extends Service implements SensorEventL
 
             double rms = Math.sqrt((accelX*accelX + accelY*accelY + accelZ*accelZ)/3);
 
-            if(counter < 100) {
+            if(counter < SIZE) {
                 myArray[counter] = rms;
                 counter++;
             } else {
+                data = getAverage(myArray);
+                Log.d("DATA COMPUTED", "onSensorChanged: " + data);
                 counter = 0;
                 myArray[counter] = rms;
                 counter++;
-                data = getAverage(myArray);
-                Log.d("DATA COMPUTED", "onSensorChanged: " + data);
             }
         }
     }
