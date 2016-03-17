@@ -14,6 +14,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,9 +25,20 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private TextView accelX, accelY, accelZ, activity, rms;
 
+    private TextView time1, activity1;
+    private TextView time2, activity2;
+    private TextView time3, activity3;
+    private TextView time4, activity4;
+    private TextView time5, activity5;
+    private TextView time6, activity6;
+    private TextView time7, activity7;
+    private TextView time8, activity8;
+    private TextView time9, activity9;
+    private TextView time10, activity10;
+
     private Button start;
 
-    private boolean startData = false;
+    private boolean startData, bool2, press = false;
 
     BoundedService.MyBinder binder_;
     BoundedService myService;
@@ -59,15 +71,38 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         bindService(myIntent, mConnection, BIND_AUTO_CREATE);
         //bounded service is started
 
-        accelX = (TextView) findViewById(R.id.accelX);
-        accelY = (TextView) findViewById(R.id.accelY);
-        accelZ = (TextView) findViewById(R.id.accelZ);
-
-        activity = (TextView) findViewById(R.id.activity);
-        rms = (TextView) findViewById(R.id.rms);
-
         start = (Button) findViewById(R.id.buttonStart);
         start.setOnClickListener(this);
+
+        time1 = (TextView) findViewById(R.id.time1);
+        activity1 = (TextView) findViewById(R.id.activity1);
+
+        time2 = (TextView) findViewById(R.id.time2);
+        activity2 = (TextView) findViewById(R.id.activity2);
+
+        time3 = (TextView) findViewById(R.id.time3);
+        activity3 = (TextView) findViewById(R.id.activity3);
+
+        time4 = (TextView) findViewById(R.id.time4);
+        activity4 = (TextView) findViewById(R.id.activity4);
+
+        time5 = (TextView) findViewById(R.id.time5);
+        activity5 = (TextView) findViewById(R.id.activity5);
+
+        time6 = (TextView) findViewById(R.id.time6);
+        activity6 = (TextView) findViewById(R.id.activity6);
+
+        time7 = (TextView) findViewById(R.id.time7);
+        activity7 = (TextView) findViewById(R.id.activity7);
+
+        time8 = (TextView) findViewById(R.id.time8);
+        activity8 = (TextView) findViewById(R.id.activity8);
+
+        time9 = (TextView) findViewById(R.id.time9);
+        activity9 = (TextView) findViewById(R.id.activity9);
+
+        time10 = (TextView) findViewById(R.id.time10);
+        activity10 = (TextView) findViewById(R.id.activity10);
 
 
     }
@@ -113,9 +148,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
         switch(v.getId()){
             case R.id.buttonStart:
-                if(connected){
-                    startData = true;
+                if(press == false){
+                    press = true;
+
+                    if(connected){
+                        startData = true;
+                        bool2 = true;
+                    }
                 }
+
         }
     }
 
@@ -168,12 +209,40 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
             //if there is a null point exception, catch it
             try{
-                activity.setText((myService.getActivity()));
-                rms.setText(Double.toString(myService.getData()));
+                if(bool2 == true){
+                    bool2 = false;
+                    myService.setBlank();
+                }
 
-                accelX.setText(Double.toString(myService.getX()));
-                accelY.setText(Double.toString(myService.getY()));
-                accelZ.setText(Double.toString(myService.getZ()));
+                time1.setText((myService.getTime1()));
+                activity1.setText((myService.getActivity1()));
+
+                time2.setText((myService.getTime2()));
+                activity2.setText((myService.getActivity2()));
+
+                time3.setText((myService.getTime3()));
+                activity3.setText((myService.getActivity3()));
+
+                time4.setText((myService.getTime4()));
+                activity4.setText((myService.getActivity4()));
+
+                time5.setText((myService.getTime5()));
+                activity5.setText((myService.getActivity5()));
+
+                time6.setText((myService.getTime6()));
+                activity6.setText((myService.getActivity6()));
+
+                time7.setText((myService.getTime7()));
+                activity7.setText((myService.getActivity7()));
+
+                time8.setText((myService.getTime8()));
+                activity8.setText((myService.getActivity8()));
+
+                time9.setText((myService.getTime9()));
+                activity9.setText((myService.getActivity9()));
+
+                time10.setText((myService.getTime10()));
+                activity10.setText((myService.getActivity10()));
             }
             //do nothing and keep running the program
             catch (NullPointerException e){
