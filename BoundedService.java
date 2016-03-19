@@ -8,17 +8,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Binder;
 import android.os.IBinder;
-import android.util.Log;
-
-import java.sql.Time;
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 
 public class BoundedService extends Service implements SensorEventListener {
 
     private final int DELAY = 100;
-    private final int SIZE = 100;
     private SensorManager sensorManager_;
     private Sensor accelerometer_;
 
@@ -74,22 +68,12 @@ public class BoundedService extends Service implements SensorEventListener {
         }
     }
 
-    public double getRms(){
-        return rms;
+    public long getTimeCheck(){
+        return timeCheck;
     }
 
-    public String getActivity(){
-        return activity;
-    }
-
-    public double getX(){
-        return accelX;
-    }
-    public double getY(){
-        return accelY;
-    }
-    public double getZ(){
-        return accelZ;
+    public int getSeconds(){
+        return seconds;
     }
 
     public String getTime1(){
@@ -247,6 +231,9 @@ public class BoundedService extends Service implements SensorEventListener {
             // every 2 minutes seconds, call the function that will write the activity
             // (determined by the algorithm) to the app
             if ((seconds % timeCheck) == 0){
+
+                // this is to let mainActivity know that it should write the current activity
+                // to the file on external storage
                 writeActivityToApp();
             }
         }

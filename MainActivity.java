@@ -7,19 +7,25 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaScannerConnection;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity implements SensorEventListener, View.OnClickListener{
 
@@ -38,7 +44,8 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
     private Button start;
 
-    private boolean startData, bool2, press = false;
+    private boolean startData, bool2, press, bool3 = false;
+    private int tmp;
 
     BoundedService.MyBinder binder_;
     BoundedService myService;
@@ -48,7 +55,6 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     private Sensor accelerometer_;
     private final int DELAY = 100;
     private Handler myHandler = new Handler();
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,7 +110,10 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         time10 = (TextView) findViewById(R.id.time10);
         activity10 = (TextView) findViewById(R.id.activity10);
 
-
+        File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        // will call the file assignment.txt
+        File file = new File(root, "assignment1.txt");
+        file.delete();
     }
 
     @Override
@@ -119,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
     protected void onPause() {
         super.onPause();
         sensormanager_.unregisterListener(this);
+        MediaScannerConnection.scanFile(this, new String[]{Environment.DIRECTORY_DOCUMENTS}, null, null);
     }
 
     @Override
@@ -202,13 +212,15 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
         @Override
         public void run() {
 
-            //I was getting NullPOinterException that were craching the program
+            //I was getting NullPointerExceptions that were crashing the program
             //It is okay for the program to get one, I just don't want it to crash the program
             //To fix the program crashing, I add a try/catch that keeps the program running
             // when there is a NullPointerException
 
-            //if there is a null point exception, catch it
+            //if there is a null pointer exception, ignore it
             try{
+                // reset all the activity when the start button is pushed
+                // this is needed because the service is started upon the app being opened
                 if(bool2 == true){
                     bool2 = false;
                     myService.setBlank();
@@ -243,6 +255,60 @@ public class MainActivity extends AppCompatActivity implements SensorEventListen
 
                 time10.setText((myService.getTime10()));
                 activity10.setText((myService.getActivity10()));
+
+
+                // every time a new activity is added to the UI, it will be written to
+                // the external storage on a new line
+
+                String externalStorage = Environment.getExternalStorageState();
+
+                // this checks to see if external storage is available
+                // if it is, then write to it
+                if (Environment.MEDIA_MOUNTED.equals(externalStorage)) {
+
+                    // will create a file in the documents folder
+                    File root = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+                    // will call the file assignment.txt
+                    File file = new File(root, "assignment1.txt");
+
+                    // this is a helper for the following if statement
+                    // see the explanation for the if statement
+                    if(bool3 == false){
+                        tmp = myService.getSeconds();
+                        bool3 = true;
+                    }
+
+                    // this if statements makes sure that content is written to the file every 2 minutes
+                    // without it, the same content would be written multiple during the minutes,
+                    //  instead of just once at the 2 minute mark
+                    if ((myService.getSeconds() % myService.getTimeCheck()) == 0 && tmp != myService.getSeconds()){
+
+                        try{
+                            // the content that will be written to the
+                            String content = myService.getTime1() + " " + myService.getActivity1() + "\n";
+
+                            // this is the code that writes the content to the file on the
+                            // external device
+                            FileOutputStream fileOutputStream = new FileOutputStream(file, true);
+                            fileOutputStream.write(content.getBytes());
+                            fileOutputStream.close();
+                        }
+                        catch (FileNotFoundException e) {
+                            e.printStackTrace();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+
+                        // helper variable, see above
+                        bool3 = false;
+                    }
+                }
+                // if external storage is not available, write this Toast message
+                else{
+                    Toast toast = Toast.makeText(getApplicationContext(), "External Storage Is Not Available", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+
             }
             //do nothing and keep running the program
             catch (NullPointerException e){
